@@ -10,6 +10,8 @@ import javax.crypto.spec.IvParameterSpec
 
 class AESCrypto(key: ByteArray) {
 
+    constructor(key: String) : this(key.toByteArray(Charsets.UTF_8))
+
     private val bits = 256
 
     private val key: ByteArray = padding(key)
@@ -45,7 +47,11 @@ class AESCrypto(key: ByteArray) {
         }.doFinal(data))
     }
 
+    fun encryptToBase64(data: ByteArray) = Base64.getEncoder().encodeToString(encrypt(data))
+
     fun encryptUTF(data: String) = encrypt(data.toByteArray(Charsets.UTF_8))
+
+    fun encryptUTFToBase64(data: String) = Base64.getEncoder().encodeToString(encryptUTF(data))
 
     fun decrypt(data: ByteArray): ByteArray {
         assert(data.size == 32)
