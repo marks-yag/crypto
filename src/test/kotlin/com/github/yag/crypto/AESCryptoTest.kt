@@ -11,17 +11,16 @@ class AESCryptoTest {
 
     @Test
     fun testString() {
-
         val data = "hello"
-        val encryptedData = crypto.encryptUTF(data)
-        val decryptedData = crypto.decryptToUTF(encryptedData)
+        val encryptedData = crypto.encrypt(data.toUtf8())
+        val decryptedData = crypto.decrypt(encryptedData).toUtf8()
 
         assertEquals(data, decryptedData)
         assertEquals(32, encryptedData.size)
 
         assertEquals(10, Array(10) {
-            crypto.encryptUTF(data).also {
-                assertEquals(data, crypto.decryptToUTF(it))
+            crypto.encrypt(data.toUtf8()).also {
+                assertEquals(data, crypto.decrypt(it).toUtf8())
             }
         }.toSet().size)
     }

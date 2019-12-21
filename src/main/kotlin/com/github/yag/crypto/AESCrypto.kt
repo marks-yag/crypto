@@ -8,16 +8,42 @@ import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.IvParameterSpec
 
+/**
+ *
+ */
 class AESCrypto(key: ByteArray) {
 
     constructor(key: String) : this(key.toByteArray(Charsets.UTF_8))
-
-    private val bits = 256
 
     private val key: ByteArray = padding(key)
 
     private val random = SecureRandom.getInstance("SHA1PRNG").apply {
         setSeed(Instant.now().toEpochMilli())
+    }
+
+    /**
+     * Encrypt data in byte array.
+     *
+     * @param data origin data
+     * @return encrypted data
+     */
+    fun encrypt(data: ByteArray): ByteArray {
+        val iv = ByteArray(16).apply {
+            random.nextBytes(this)
+        }
+        return iv.plus(getCipher().also {
+            it.init(Cipher.ENCRYPT_MODE, getSecretKey(key), getIvParameterSpec(iv))
+        }.doFinal(data))
+    }
+
+    fun decrypt(data: ByteArray): ByteArray {
+        assert(data.size == 32)
+
+        val iv = data.sliceArray(0..15)
+        val encryptedData = data.sliceArray(16 until data.size)
+        return getCipher().also {
+            it.init(Cipher.DECRYPT_MODE, getSecretKey(key), getIvParameterSpec(iv))
+        }.doFinal(encryptedData)
     }
 
     private fun getCipher() = Cipher.getInstance("AES/CBC/PKCS5Padding")
@@ -38,35 +64,10 @@ class AESCrypto(key: ByteArray) {
         }.generateKey()
     }
 
-    fun encrypt(data: ByteArray): ByteArray {
-        val iv = ByteArray(16).apply {
-            random.nextBytes(this)
-        }
-        return iv.plus(getCipher().also {
-            it.init(Cipher.ENCRYPT_MODE, getSecretKey(key), getIvParameterSpec(iv))
-        }.doFinal(data))
+    companion object {
+
+        private const val bits = 256
+
     }
-
-    fun encryptToBase64(data: ByteArray) = Base64.getEncoder().encodeToString(encrypt(data))
-
-    fun encryptUTF(data: String) = encrypt(data.toByteArray(Charsets.UTF_8))
-
-    fun encryptUTFToBase64(data: String) = Base64.getEncoder().encodeToString(encryptUTF(data))
-
-    fun decrypt(data: ByteArray): ByteArray {
-        assert(data.size == 32)
-
-        val iv = data.sliceArray(0..15)
-        val encryptedData = data.sliceArray(16 until data.size)
-        return getCipher().also {
-            it.init(Cipher.DECRYPT_MODE, getSecretKey(key), getIvParameterSpec(iv))
-        }.doFinal(encryptedData)
-    }
-
-    fun decryptToUTF(data: ByteArray) = decrypt(data).toString(Charsets.UTF_8)
-
-    fun decryptBase64(data: String) = decrypt(Base64.getDecoder().decode(data))
-
-    fun decryptBase64ToUTF(data: String) = decryptBase64(data).toString(Charsets.UTF_8)
 
 }
