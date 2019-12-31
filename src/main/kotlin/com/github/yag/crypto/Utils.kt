@@ -6,8 +6,8 @@ fun ByteArray.toBase64() : String {
     return Base64.getEncoder().encodeToString(this)
 }
 
-fun ByteArray.toHexString() : String {
-    return this.joinToString("") { it.toString(16) }
+fun String.decodeBase64() : ByteArray {
+    return Base64.getDecoder().decode(this)
 }
 
 fun ByteArray.toUtf8() : String {
