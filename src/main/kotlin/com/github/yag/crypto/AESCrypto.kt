@@ -37,8 +37,6 @@ class AESCrypto(key: ByteArray) {
     }
 
     fun decrypt(data: ByteArray): ByteArray {
-        assert(data.size == 32)
-
         val iv = data.sliceArray(0..15)
         val encryptedData = data.sliceArray(16 until data.size)
         return getCipher().also {
