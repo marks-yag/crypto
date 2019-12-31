@@ -7,7 +7,7 @@
     <groupId>com.github.marks-yag</groupId>
     <artifactId>crypto</artifactId>
     <url>https://github.com/marks-yag/crypto</url>
-    <version>0.9.10</version>
+    <version>0.9.11</version>
     <packaging>jar</packaging>
 
     <name>Crypto</name>
